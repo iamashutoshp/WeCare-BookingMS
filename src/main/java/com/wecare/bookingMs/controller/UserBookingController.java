@@ -37,7 +37,7 @@ public class UserBookingController {
 	@HystrixCommand(fallbackMethod = "bookAppointmentFallBack")
 	public CustomResponse bookAppointment(@PathVariable("userId") String userId,
 			@PathVariable("coachId") String coachId, @RequestBody BookingDTO bookingDTO) {
-		CustomResponse response = new CustomResponse(HttpStatus.OK, "", false);
+		CustomResponse response = new CustomResponse();
 
 		String slot = bookingDTO.getSlot();
 		LocalDate dateOfAppointment = bookingDTO.getAppointmentDate();
@@ -48,12 +48,14 @@ public class UserBookingController {
 		try {
 			res = bookingService.bookAppointment(userId, coachId, slot, dateOfAppointment);
 			if (res) {
+				response.setHttpStatus(HttpStatus.OK);
 				response.setMessage("Appointment Booked");
 				response.setResult(res);
 			}
 		} catch (CoachAvailabilityException | InvalidTimeSlotException e) {
 			log.error("error in Booking appointment : "+e.getMessage());
 			e.printStackTrace();
+			response.setHttpStatus(HttpStatus.NOT_FOUND);
 			response.setMessage("Error in Booking appointment : "+e.getMessage());
 			response.setResult(false);
 		}
