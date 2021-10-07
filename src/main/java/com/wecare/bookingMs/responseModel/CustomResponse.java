@@ -55,4 +55,10 @@ public class CustomResponse {
 		this.result = result;
 	}
 
+	@Override
+	public String toString() {
+		return "CustomResponse [httpStatus=" + httpStatus + ", timestamp=" + timestamp + ", message=" + message
+				+ ", result=" + result + "]";
+	}
+
 }
