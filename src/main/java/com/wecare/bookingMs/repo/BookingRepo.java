@@ -19,5 +19,7 @@ public interface BookingRepo extends JpaRepository<BookingEntity, Integer>{
 	@Modifying
     @Query("Update BookingEntity b SET b.slot=:slot, b.appointmentDate=:appointmentDate WHERE b.bookingId=:bookingId")
     public void updateSlotAndAppointmentDate(String slot,LocalDate appointmentDate,Integer bookingId);
+
+	List<BookingEntity> findByCoachId(String coachId);
 }
 

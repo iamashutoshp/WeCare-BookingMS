@@ -1,6 +1,7 @@
 package com.wecare.bookingMs.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.wecare.bookingMs.dto.BookingDTO;
 import com.wecare.bookingMs.entity.BookingEntity;
 import com.wecare.bookingMs.exceptions.BookingException;
 import com.wecare.bookingMs.exceptions.CoachAvailabilityException;
@@ -109,6 +112,24 @@ public class BookingService {
 			log.warn("cancelAppointment : Booking does not exsits for bookingId : " + bookingId);
 			throw new BookingException("Booking does not exsits for bookingId : " + bookingId);
 		}
+	}
+
+	public List<BookingDTO> getCoachSchedule(String coachId) throws BookingException {
+		log.info("getCoachSchedule : inside getCoachSchedule service method for coachID : "+coachId);
+		List<BookingDTO> bookingDTOs=new ArrayList<>();
+		List<BookingEntity> bookingEntities=null;
+		
+		bookingEntities=bookingRepo.findByCoachId(coachId);
+		
+		log.info("getCoachSchedule : bookings for coachID : "+coachId+" | Bookings : "+bookingEntities);
+		if(bookingEntities==null||bookingEntities.size()==0)
+			throw new BookingException("No booking exists for this coachId : "+coachId);
+		
+		for(BookingEntity b : bookingEntities)
+			bookingDTOs.add(BookingDTO.prepareBookingDTO(b));
+		
+		log.info("getCoachSchedule : exiting getCoachSchedule service method for coachID : "+coachId);
+		return bookingDTOs;
 	}
 
 }
