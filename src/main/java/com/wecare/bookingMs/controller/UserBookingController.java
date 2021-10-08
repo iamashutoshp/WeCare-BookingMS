@@ -41,9 +41,9 @@ public class UserBookingController {
 
 		String slot = bookingDTO.getSlot();
 		LocalDate dateOfAppointment = bookingDTO.getAppointmentDate();
-		log.info("Inside bookAppointment : userId : " + userId + " | " + " coachId : " + coachId + " | slot : " + slot
+		log.info("bookAppointment : userId : " + userId + " | " + " coachId : " + coachId + " | slot : " + slot
 				+ " | dateOfAppointment : " + dateOfAppointment);
-		log.info(bookingDTO.toString());
+		log.info("bookAppointment : requested booking date: "+dateOfAppointment +" & time Slot: "+slot);
 		Boolean res = false;
 		try {
 			res = bookingService.bookAppointment(userId, coachId, slot, dateOfAppointment);
@@ -59,6 +59,7 @@ public class UserBookingController {
 			response.setMessage("Error in Booking appointment : "+e.getMessage());
 			response.setResult(false);
 		}
+		log.info("bookAppointment : returning response : "+response);
 		return response;
 	}
 

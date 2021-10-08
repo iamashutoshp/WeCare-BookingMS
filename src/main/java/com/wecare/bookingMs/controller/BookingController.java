@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.wecare.bookingMs.dto.BookingDTO;
+import com.wecare.bookingMs.exceptions.BookingException;
 import com.wecare.bookingMs.exceptions.CoachAvailabilityException;
 import com.wecare.bookingMs.exceptions.InvalidTimeSlotException;
 import com.wecare.bookingMs.responseModel.CustomResponse;
@@ -67,5 +69,31 @@ public class BookingController {
 	public ResponseEntity<String> rescheduleAppointmentFallBack() {
 		log.warn("rescheduleAppointmentFallBack : some error occured in rescheduleAppointment");
 		return ResponseEntity.ok("Sorry can't reschedule now. please try again later.");
+	}
+
+	@DeleteMapping(value="/{bookingId}")
+	@HystrixCommand(fallbackMethod = "cancelAppointmentFallBack")
+	public CustomResponse cancelAppointment(@PathVariable("bookingId") String bookingIdStr) {
+		log.info("cancelAppointment : Inside cancelAppointment method for bookingId : "+bookingIdStr);
+		Integer bookingId;
+		CustomResponse response=new CustomResponse();
+		response.setHttpStatus(HttpStatus.OK);
+		response.setMessage("Appointment Deleted");
+		try {
+			bookingId=Integer.parseInt(bookingIdStr);
+			bookingService.cancelAppointment(bookingId);
+		} catch (NumberFormatException | BookingException e) {
+			log.error("cancelAppointment : "+e.getMessage());
+			response.setMessage("Invalid Booking number");
+			log.error("cancelAppointment : could not delete appointment for bookingId : "+bookingIdStr);
+		}
+		
+		log.info("cancelAppointment : exiting cancelAppointment");
+		return response;
+	}
+	
+	public ResponseEntity<String> cancelAppointmentFallBack(@PathVariable("bookingId") String bookingIdStr) {
+		log.info("cancelAppointmentFallBack : some error occured inside cancelAppointment method for bookingId : "+bookingIdStr);
+		return ResponseEntity.ok("Try Deleting after some time..");
 	}
 }
